@@ -36,3 +36,6 @@ pizas = {
         **{f'peon_negro{i}': cargar_imagen_pieza('peon_negro.png') for i in range(8)},
 }
 
+
+
+##Hola
