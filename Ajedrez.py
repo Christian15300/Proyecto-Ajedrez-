@@ -35,6 +35,44 @@ pizas = {
         **{f'peon_blanco{i}': cargar_imagen_pieza('peon_blanco.png') for i in range(8)},
         **{f'peon_negro{i}': cargar_imagen_pieza('peon_negro.png') for i in range(8)},
 }
+def dibujar_tabalero():
+  pantalla.fill(blanco)
+  for file in range (8):
+    for columna in range(8):
+        color = blanco if (fila + columna) % 2 == 0 else negro 
+        pygame.draw.rect(pantalla, color, (columna * tamaño_celda, fila * tamaño_celda,  tamaño_celda, tamaño_celda))
+
+def dibujar_pieza():
+  for pieza, (columnam fila) in posiciones_piezas.items():
+  pantalla.blit(pieza[pieza], (columna * tamaño_celda, fila * tamaño_celda))
+
+def movimiento_valido(pieza, nueva_posicion):
+    col, fila = posiciones_piezas[pieza]
+    nueva_col, nueva_fila = nueva_posicion
+
+  if 'rey' in pieza:
+      return abs(cos - nueva_col) <= 1 and abs(fila - nueva_fila) <= 1 
+  elif 'reina' in pieza:
+       return col == nueva_col or file == nueva_fila or abs(col - nueva_col) == abs(fila nueva_fila)
+  elif 'torre' in pieza:
+       return col == nueva_col or fila == nueva_fila
+  elif 'alfil' in pieza:
+       return abs(col - nuevo _col) == abs(fila - nueva_fila)
+  elif 'caballo' in pieza:
+       return (abs(col - nueva_col), abs(fila - nueva_fila)) in [(1, 2)(2,1)]
+  elif 'peon' in pieza:
+       dirección = 1 if 'blanco' in pieza else -1
+       return nueva_fila == fila + direccion and (nueva_col == col or abs(nueva_col-col) ==1)
+  return False
+
+pieza_seleccionada= None 
+
+while True:
+     for evento in pygame.event.get():
+          if evento.type  == pygame.QUIT:
+               pygame.quit()
+               
+
 
 
 
