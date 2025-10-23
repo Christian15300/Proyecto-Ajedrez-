@@ -99,8 +99,3 @@ while True:
      dibujar_tabalero()
      dibujar_pieza()
      pygame.display.flip()
-               
-
-
-
-
