@@ -59,7 +59,7 @@ posiciones_piezas = {
     **{f'peon_negro{i}': (i, 6) for i in range(8)},
 }
 
-# --- Funciones de dibujo ---
+# --- Utilidades de tablero/piezas ---
 def dibujar_tablero():
     for fila in range(8):
         for columna in range(8):
@@ -79,6 +79,29 @@ def obtener_pieza_en_posicion(columna, fila):
             return pieza
     return None
 
+def color_de(nombre_pieza):
+    # Detecta blanco/blanca y negro/negra
+    if ('blanco' in nombre_pieza) or ('blanca' in nombre_pieza):
+        return 'blanco'
+    if ('negro' in nombre_pieza) or ('negra' in nombre_pieza):
+        return 'negro'
+    return None
+
+def mismo_color(p1, p2):
+    return color_de(p1) == color_de(p2)
+
+# --- Comprobación de camino libre (para torre/alfil/reina) ---
+def camino_libre(col, fila, nueva_col, nueva_fila):
+    dc = 0 if nueva_col == col else (1 if nueva_col > col else -1)
+    df = 0 if nueva_fila == fila else (1 if nueva_fila > fila else -1)
+    c, f = col + dc, fila + df
+    while (c, f) != (nueva_col, nueva_fila):
+        if obtener_pieza_en_posicion(c, f) is not None:
+            return False
+        c += dc
+        f += df
+    return True
+
 # --- Reglas de movimiento ---
 def movimiento_valido(pieza, nueva_pos):
     col, fila = posiciones_piezas[pieza]
@@ -86,41 +109,66 @@ def movimiento_valido(pieza, nueva_pos):
     dx = abs(nueva_col - col)
     dy = abs(nueva_fila - fila)
 
-    # --- REY ---
+    if (nueva_col, nueva_fila) == (col, fila):
+        return False
+
+    pieza_destino = obtener_pieza_en_posicion(nueva_col, nueva_fila)
+    if pieza_destino and mismo_color(pieza, pieza_destino):
+        return False
+
+    # REY
     if 'rey' in pieza:
         return dx <= 1 and dy <= 1
 
-    # --- REINA ---
-    if 'reina' in pieza:
-        return (dx == dy) or (col == nueva_col) or (fila == nueva_fila)
-
-    # --- TORRE ---
-    if 'torre' in pieza:
-        return (col == nueva_col) or (fila == nueva_fila)
-
-    # --- ALFIL ---
-    if 'alfil' in pieza:
-        return dx == dy
-
-    # --- CABALLO ---
+    # CABALLO
     if 'caballo' in pieza:
         return (dx, dy) in [(1, 2), (2, 1)]
 
-    # --- PEÓN ---
+    # ALFIL
+    if 'alfil' in pieza:
+        if dx == dy:
+            return camino_libre(col, fila, nueva_col, nueva_fila)
+        return False
+
+    # TORRE
+    if 'torre' in pieza:
+        if (col == nueva_col) or (fila == nueva_fila):
+            return camino_libre(col, fila, nueva_col, nueva_fila)
+        return False
+
+    # REINA
+    if 'reina' in pieza:
+        if (dx == dy) or (col == nueva_col) or (fila == nueva_fila):
+            return camino_libre(col, fila, nueva_col, nueva_fila)
+        return False
+
+    # PEÓN
     if 'peon' in pieza:
-        direccion = 1 if 'blanco' in pieza else -1
-        # Movimiento hacia adelante
+        color = color_de(pieza)
+        direccion = 1 if color == 'blanco' else -1
+        inicio = 1 if color == 'blanco' else 6
+
+        # avance 1
         if nueva_col == col and nueva_fila == fila + direccion:
-            return True
-        # Movimiento inicial de dos pasos
-        if nueva_col == col and ((fila == 1 and 'blanco' in pieza) or (fila == 6 and 'negro' in pieza)):
-            if nueva_fila == fila + 2 * direccion:
+            if obtener_pieza_en_posicion(nueva_col, nueva_fila) is None:
                 return True
-        # Captura diagonal
+            return False
+
+        # avance 2 desde inicio
+        if fila == inicio and nueva_col == col and nueva_fila == fila + 2 * direccion:
+            if (obtener_pieza_en_posicion(col, fila + direccion) is None and
+                obtener_pieza_en_posicion(nueva_col, nueva_fila) is None):
+                return True
+            return False
+
+        # captura diagonal
         if dx == 1 and nueva_fila == fila + direccion:
-            pieza_en_destino = obtener_pieza_en_posicion(nueva_col, nueva_fila)
-            if pieza_en_destino and ('blanco' in pieza) != ('blanco' in pieza_en_destino):
+            if pieza_destino and not mismo_color(pieza, pieza_destino):
                 return True
+            return False
+
+        return False
+
     return False
 
 # --- Bucle principal ---
@@ -139,21 +187,24 @@ while True:
             pieza_clic = obtener_pieza_en_posicion(columna, fila)
 
             if pieza_seleccionada:
-                # Intentar mover
                 if movimiento_valido(pieza_seleccionada, (columna, fila)):
-                    # Si hay pieza enemiga, la elimina
+                    # capturar si hay rival
                     pieza_destino = obtener_pieza_en_posicion(columna, fila)
-                    if pieza_destino and ('blanco' in pieza_destino) != ('blanco' in pieza_seleccionada):
+                    if pieza_destino and not mismo_color(pieza_seleccionada, pieza_destino):
                         posiciones_piezas.pop(pieza_destino)
-                    # Actualizar posición
+                    # mover
                     posiciones_piezas[pieza_seleccionada] = (columna, fila)
                     pieza_seleccionada = None
                     turno = 'negro' if turno == 'blanco' else 'blanco'
                 else:
-                    pieza_seleccionada = None
+                    # cambiar selección si clic en pieza del mismo turno
+                    if pieza_clic and color_de(pieza_clic) == turno:
+                        pieza_seleccionada = pieza_clic
+                    else:
+                        pieza_seleccionada = None
             else:
-                # Seleccionar pieza del turno correcto
-                if pieza_clic and turno in pieza_clic:
+                # Seleccionar pieza del turno correcto (funciona con blanca/blanco)
+                if pieza_clic and color_de(pieza_clic) == turno:
                     pieza_seleccionada = pieza_clic
 
     # Dibujar todo
@@ -167,3 +218,4 @@ while True:
                           tamaño_celda, tamaño_celda), 5)
 
     pygame.display.flip()
+
