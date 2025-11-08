@@ -5,7 +5,7 @@ import os
 pygame.init()
 
 # --- Configuración general ---
-ancho, alto = 800, 800
+ancho, alto = 700, 700
 tamaño_celda = ancho // 8
 pantalla = pygame.display.set_mode((ancho, alto))
 pygame.display.set_caption('Ajedrez en Pygame')
@@ -39,15 +39,15 @@ piezas = {
     'reina_blanca': cargar_imagen_pieza('reina_blanca.png'),
     'reina_negra': cargar_imagen_pieza('reina_negra.png'),
     'torre_blanca': cargar_imagen_pieza('torre_blanco.png'),
-   
+
     'torre_negra': cargar_imagen_pieza('torre_negra.png'),
-   
+
     'alfil_blanco': cargar_imagen_pieza('alfil_blanco.png'),
-   
+
     'alfil_negro': cargar_imagen_pieza('alfil_negro.png'),
-   
+
     'caballo_blanco': cargar_imagen_pieza('caballo_blanco.png'),
- 
+    
     'caballo_negro': cargar_imagen_pieza('caballo_negro.png'),
     'peon_blanco': cargar_imagen_pieza('peon_blanco.png'),
     'peon_negro': cargar_imagen_pieza('peon_negro.png'),
@@ -529,7 +529,7 @@ while True:
                                             sys.exit()
                                         if e.type == pygame.KEYDOWN:
                                             k = pygame.key.name(e.key).upper()
-                                            if k in ['R', 'T', 'A', 'C']:
+                                            if k in ['Q', 'T', 'A', 'C']:
                                                 seleccion = k
                                                 esperando = False
                                     # pequeña espera para no bloquear el loop completamente
@@ -540,7 +540,7 @@ while True:
                                 globals()['contador_promocion'] = nonlocal_counter + 1
                                 suf_color = 'blanca' if es_blanco else 'negra'
 
-                                if seleccion == 'R':
+                                if seleccion == 'Q':
                                     nombre = 'reina'
                                     key_base = f'reina_{suf_color}'
                                 elif seleccion == 'T':
