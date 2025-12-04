@@ -4,7 +4,11 @@ import os
 
 pygame.init()
 
+<<<<<<< HEAD
 
+=======
+# --- Configuración general ---
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 ancho, alto = 700, 700
 tamaño_celda = ancho // 8
 pantalla = pygame.display.set_mode((ancho, alto))
@@ -32,7 +36,11 @@ def cargar_imagen_pieza(nombre):
         superficie.fill((255, 0, 0))
         return superficie
 
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 piezas = {
     'rey_blanco': cargar_imagen_pieza('rey_blanco.png'),
     'rey_negro': cargar_imagen_pieza('rey_negro.png'),
@@ -67,11 +75,19 @@ posiciones_piezas = {
     **{f'peon_negro{i}': (i, 6) for i in range(8)},
 }
 
+<<<<<<< HEAD
 
 for i in range(8):
     piezas[f'peon_blanco{i}'] = piezas['peon_blanco']
     piezas[f'peon_negro{i}'] = piezas['peon_negro']
 
+=======
+# Asociar imágenes a las piezas individuales (cada peón copia la imagen genérica)
+for i in range(8):
+    piezas[f'peon_blanco{i}'] = piezas['peon_blanco']
+    piezas[f'peon_negro{i}'] = piezas['peon_negro']
+# también las torres/caballos/alfiles duplicados
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 piezas['torre_blanca2'] = piezas['torre_blanca']
 piezas['torre_negra2'] = piezas['torre_negra']
 piezas['alfil_blanco2'] = piezas['alfil_blanco']
@@ -79,6 +95,10 @@ piezas['alfil_negro2'] = piezas['alfil_negro']
 piezas['caballo_blanco2'] = piezas['caballo_blanco']
 piezas['caballo_negro2'] = piezas['caballo_negro']
 
+<<<<<<< HEAD
+=======
+# --- Estado de si las piezas se han movido (para enroque) ---
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 
 piezas_movidas = {
     'rey_blanco': False,
@@ -89,7 +109,11 @@ piezas_movidas = {
     'torre_negra2': False,
 }
 
+<<<<<<< HEAD
 
+=======
+# contador para crear claves únicas en promociones
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 contador_promocion = 0
 
 def color_de(nombre_pieza):
@@ -128,14 +152,25 @@ def camino_libre(col, fila, nueva_col, nueva_fila):
 def copia_tablero(board):
     return dict(board)
 
+<<<<<<< HEAD
 
 
+=======
+# =========================
+# Patrón de movimiento (sin chequear jaque)
+# =========================
+
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 def pieza_ataca_a_en(board, pieza, desde_col, desde_fila, obj_col, obj_fila):
     dx = abs(obj_col - desde_col)
     dy = abs(obj_fila - desde_fila)
 
     if 'peon' in pieza:
+<<<<<<< HEAD
         
+=======
+        # los peones atacan diagonalmente en la dirección adecuada
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
         dir_p = 1 if color_de(pieza) == 'blanco' else -1
         return dx == 1 and (obj_fila - desde_fila) == dir_p
 
@@ -179,7 +214,11 @@ def esta_en_jaque_en(board, color):
 def esta_en_jaque(color):
     return esta_en_jaque_en(posiciones_piezas, color)
 
+<<<<<<< HEAD
 
+=======
+# --- Comprueba si una casilla está atacada por el bando enemigo (en un board dado)
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 def casilla_atacada_en(board, color_revisado, col, fila):
     enemigo = 'negro' if color_revisado == 'blanco' else 'blanco'
     for p, (c, f) in board.items():
@@ -195,6 +234,7 @@ def puede_enrocar_en(board, color, lado):
     rey_key = 'rey_blanco' if color == 'blanco' else 'rey_negro'
 
     if piezas_movidas.get(rey_key, True):
+<<<<<<< HEAD
         return False
 
    
@@ -241,6 +281,60 @@ def puede_enrocar_en(board, color, lado):
     return True
 
 
+def movimiento_por_patron(pieza, nueva_pos, board=None):
+    if board is None:
+        board = posiciones_piezas
+
+    col, fila = board[pieza]
+=======
+        return False
+
+   
+    if color == 'blanco':
+        torre_lado = 'torre_blanca2' if lado == 'corto' else 'torre_blanca'
+        col_torre = 7 if lado == 'corto' else 0
+    else:
+        torre_lado = 'torre_negra2' if lado == 'corto' else 'torre_negra'
+        col_torre = 7 if lado == 'corto' else 0
+
+   
+    pieza_torre = board.get(torre_lado)
+    if pieza_torre is None:
+   
+        pieza_en_casilla = obtener_pieza_en_posicion_board(board, col_torre, fila)
+        if pieza_en_casilla is None or torre_lado not in board or color_de(pieza_en_casilla) != color:
+            return False
+    else:
+  
+        if piezas_movidas.get(torre_lado, True):
+            return False
+
+   
+    if lado == 'corto':
+        columnas_entre = [5, 6]
+        columnas_king_path = [4, 5, 6]
+    else:
+        columnas_entre = [1, 2, 3]
+        columnas_king_path = [4, 3, 2]
+
+    for c in columnas_entre:
+        if obtener_pieza_en_posicion_board(board, c, fila) is not None:
+            return False
+
+   
+    if esta_en_jaque_en(board, color):
+        return False
+
+   
+    for c in columnas_king_path:
+        if casilla_atacada_en(board, color, c, fila):
+            return False
+
+    return True
+
+# =========================
+# Patrón de movimiento (sin chequear jaque)
+# =========================
 def movimiento_por_patron(pieza, nueva_pos, board=None):
     if board is None:
         board = posiciones_piezas
@@ -294,6 +388,167 @@ def movimiento_por_patron(pieza, nueva_pos, board=None):
         direccion = 1 if color == 'blanco' else -1
         inicio = 1 if color == 'blanco' else 6
 
+        # avance 1
+        if nueva_col == col and nueva_fila == fila + direccion:
+            if obtener_pieza_en_posicion_board(board, nueva_col, nueva_fila) is None:
+                return True
+            return False
+
+        # avance 2
+        if fila == inicio and nueva_col == col and nueva_fila == fila + 2 * direccion:
+            if (obtener_pieza_en_posicion_board(board, col, fila + direccion) is None and
+                obtener_pieza_en_posicion_board(board, nueva_col, nueva_fila) is None):
+                return True
+            return False
+
+        # captura diagonal
+        if dx == 1 and nueva_fila == fila + direccion:
+            if pieza_destino and not mismo_color(pieza, pieza_destino):
+                return True
+            return False
+
+        return False
+
+    return False
+
+
+def movimiento_legal(pieza, nueva_pos):
+   
+    if not movimiento_por_patron(pieza, nueva_pos, posiciones_piezas):
+        return False
+
+  
+    board = copia_tablero(posiciones_piezas)
+    origen = board[pieza]
+    destino_pieza = None
+    for p, pos in list(board.items()):
+        if pos == nueva_pos and p != pieza:
+            destino_pieza = p
+            break
+    if destino_pieza:
+        board.pop(destino_pieza)
+    board[pieza] = nueva_pos
+
+    # simula enroque moviendo torre en la simulación
+    if 'rey' in pieza:
+        col_origen, fila_origen = origen
+        col_dest, fila_dest = nueva_pos
+        if abs(col_dest - col_origen) == 2 and fila_origen == fila_dest:
+    
+            if col_dest > col_origen:
+   
+                torre_origen_col, torre_dest_col = 7, 5
+            else:
+    
+                torre_origen_col, torre_dest_col = 0, 3
+   
+            torre_a_mover = obtener_pieza_en_posicion_board(board, torre_origen_col, fila_origen)
+            if torre_a_mover:
+                board[torre_a_mover] = (torre_dest_col, fila_origen)
+
+
+    if 'rey' in pieza:
+        color = color_de(pieza)
+        if esta_en_jaque_en(board, color):
+            return False
+
+  
+    color = color_de(pieza)
+    return not esta_en_jaque_en(board, color)
+
+# --- Dibujo ---
+def dibujar_tablero():
+    for fila in range(8):
+        for columna in range(8):
+            color = blanco if (fila + columna) % 2 == 0 else marron
+            pygame.draw.rect(pantalla, color,
+                             (columna * tamaño_celda, fila * tamaño_celda,
+                              tamaño_celda, tamaño_celda))
+
+def dibujar_piezas():
+    for pieza, (columna, fila) in posiciones_piezas.items():
+        img = piezas.get(pieza)
+        if img:
+            pantalla.blit(img, (columna * tamaño_celda, fila * tamaño_celda))
+
+# --- Reglas de movimiento (usadas para interfaz / resaltado) ---
+def movimiento_valido(pieza, nueva_pos):
+    col, fila = posiciones_piezas[pieza]
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
+    nueva_col, nueva_fila = nueva_pos
+    dx = abs(nueva_col - col)
+    dy = abs(nueva_fila - fila)
+
+    if (nueva_col, nueva_fila) == (col, fila):
+        return False
+
+   
+    pieza_destino = obtener_pieza_en_posicion_board(board, nueva_col, nueva_fila)
+    if pieza_destino and mismo_color(pieza, pieza_destino):
+        return False
+
+  
+    if 'rey' in pieza:
+<<<<<<< HEAD
+  
+        if dx <= 1 and dy <= 1:
+            return True
+   
+        if dy == 0 and dx == 2:
+            color = color_de(pieza)
+            lado = 'corto' if nueva_col > col else 'largo'
+            return puede_enrocar_en(board, color, lado)
+        return False
+
+  
+    if 'caballo' in pieza:
+        return (dx, dy) in [(1, 2), (2, 1)]
+
+   
+=======
+      
+        if dx <= 1 and dy <= 1:
+            return True
+      
+        if dy == 0 and dx == 2:
+            color = color_de(pieza)
+            lado = 'corto' if nueva_col > col else 'largo'
+            return puede_enrocar_en(posiciones_piezas, color, lado)
+        return False
+
+   
+    if 'caballo' in pieza:
+        return (dx, dy) in [(1, 2), (2, 1)]
+
+    
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
+    if 'alfil' in pieza:
+        return dx == dy and camino_libre_board(board, col, fila, nueva_col, nueva_fila)
+
+
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
+    if 'torre' in pieza:
+        return (col == nueva_col or fila == nueva_fila) and camino_libre_board(board, col, fila, nueva_col, nueva_fila)
+
+<<<<<<< HEAD
+   
+=======
+    
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
+    if 'reina' in pieza:
+        recto = (col == nueva_col or fila == nueva_fila)
+        diagonal = (dx == dy)
+        return (recto or diagonal) and camino_libre_board(board, col, fila, nueva_col, nueva_fila)
+
+    
+    if 'peon' in pieza:
+        color = color_de(pieza)
+        direccion = 1 if color == 'blanco' else -1
+        inicio = 1 if color == 'blanco' else 6
+
         
         if nueva_col == col and nueva_fila == fila + direccion:
             if obtener_pieza_en_posicion_board(board, nueva_col, nueva_fila) is None:
@@ -317,6 +572,7 @@ def movimiento_por_patron(pieza, nueva_pos, board=None):
 
     return False
 
+<<<<<<< HEAD
 
 def movimiento_legal(pieza, nueva_pos):
    
@@ -455,6 +711,9 @@ def movimiento_valido(pieza, nueva_pos):
     return False
 
 
+=======
+# --- Bucle principal ---
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
 
 pieza_seleccionada = None
 turno = 'blanco'
@@ -471,6 +730,7 @@ while True:
             pieza_clic = obtener_pieza_en_posicion(columna, fila)
 
             if pieza_seleccionada:
+<<<<<<< HEAD
                 
                 if movimiento_valido(pieza_seleccionada, (columna, fila)):
                     
@@ -487,6 +747,25 @@ while True:
                         posiciones_piezas[pieza_seleccionada] = (columna, fila)
 
                         
+=======
+                # Primero comprobación de patrón general (para UI/feedback)
+                # IMPORTANTE: NO eliminar piezas aquí (esa era la causa del bug)
+                if movimiento_valido(pieza_seleccionada, (columna, fila)):
+                    # Solo permitimos movimientos legales (que no dejen al rey en jaque)
+                    if movimiento_legal(pieza_seleccionada, (columna, fila)) and color_de(pieza_seleccionada) == turno:
+                        # Ejecutar la captura solo en el momento de mover
+                        victima = obtener_pieza_en_posicion(columna, fila)
+                        if victima and not mismo_color(pieza_seleccionada, victima):
+                            posiciones_piezas.pop(victima)
+                            # también eliminar imagen si existe para esa clave individual (opcional)
+                            piezas.pop(victima, None)
+
+                        # Mover la pieza
+                        origen = posiciones_piezas[pieza_seleccionada]
+                        posiciones_piezas[pieza_seleccionada] = (columna, fila)
+
+                        # Manejo de enroque (si se movió el rey 2 casillas)
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                         if 'rey' in pieza_seleccionada:
                             col_origen, fila_origen = origen
                             col_dest, fila_dest = (columna, fila)
@@ -502,16 +781,28 @@ while True:
 
                             piezas_movidas[pieza_seleccionada] = True
 
+<<<<<<< HEAD
                        
                         if 'torre' in pieza_seleccionada:
                             piezas_movidas[pieza_seleccionada] = True
 
                         
+=======
+                        # Si movimos una torre, marcarla como movida
+                        if 'torre' in pieza_seleccionada:
+                            piezas_movidas[pieza_seleccionada] = True
+
+                        # PROMOCIÓN DE PEÓN (si corresponde)
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                         if 'peon' in pieza_seleccionada:
                             colp, filap = posiciones_piezas[pieza_seleccionada]
                             es_blanco = (color_de(pieza_seleccionada) == 'blanco')
                             if (es_blanco and filap == 7) or (not es_blanco and filap == 0):
+<<<<<<< HEAD
                                 
+=======
+                                # pedir promoción por tecla: Q/T/A/C
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                                 seleccion = None
                                 mensaje = "Promoción: presiona Q=Reina, T=Torre, A=Alfil, C=Caballo"
                                 print(mensaje)
@@ -526,10 +817,17 @@ while True:
                                             if k in ['Q', 'T', 'A', 'C']:
                                                 seleccion = k
                                                 esperando = False
+<<<<<<< HEAD
                                     
                                     pygame.time.wait(50)
 
                                 
+=======
+                                    # pequeña espera para no bloquear el loop completamente
+                                    pygame.time.wait(50)
+
+                                # crear pieza nueva única para promoción
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                                 nonlocal_counter = globals().get('contador_promocion', 0)
                                 globals()['contador_promocion'] = nonlocal_counter + 1
                                 suf_color = 'blanca' if es_blanco else 'negra'
@@ -548,6 +846,7 @@ while True:
                                     key_base = f'caballo_{suf_color}'
 
                                 nueva_clave = f"{nombre}_{suf_color}_prom{globals()['contador_promocion']}"
+<<<<<<< HEAD
                                 
                                 if piezas.get(key_base):
                                     piezas[nueva_clave] = piezas[key_base]
@@ -556,21 +855,43 @@ while True:
                                     piezas[nueva_clave] = piezas[f'{nombre}_{suf_color}'] if piezas.get(f'{nombre}_{suf_color}') else list(piezas.values())[0]
 
                                 
+=======
+                                # asignar imagen reutilizando la imagen base (por ejemplo 'reina_blanca')
+                                if piezas.get(key_base):
+                                    piezas[nueva_clave] = piezas[key_base]
+                                else:
+                                    # fallback: elegir una imagen por color
+                                    piezas[nueva_clave] = piezas[f'{nombre}_{suf_color}'] if piezas.get(f'{nombre}_{suf_color}') else list(piezas.values())[0]
+
+                                # reemplazar la pieza en posiciones (borrar la clave del peón)
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                                 posiciones_piezas.pop(pieza_seleccionada, None)
                                 piezas.pop(pieza_seleccionada, None)
                                 posiciones_piezas[nueva_clave] = (colp, filap)
 
+<<<<<<< HEAD
                         
                         pieza_seleccionada = None
                         turno = 'negro' if turno == 'blanco' else 'blanco'
                     else:
                        
+=======
+                        # limpiar selección y cambiar turno
+                        pieza_seleccionada = None
+                        turno = 'negro' if turno == 'blanco' else 'blanco'
+                    else:
+                        # si el movimiento no es legal (por jaque), mantener o cambiar selección
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                         if pieza_clic and color_de(pieza_clic) == turno:
                             pieza_seleccionada = pieza_clic
                         else:
                             pieza_seleccionada = None
                 else:
+<<<<<<< HEAD
                     
+=======
+                    # movimiento no válido por patrón: cambiar selección si clic en pieza propia
+>>>>>>> 7466761dd59168b2dcb428bedb45c88b8e929157
                     if pieza_clic and color_de(pieza_clic) == turno:
                         pieza_seleccionada = pieza_clic
                     else:
