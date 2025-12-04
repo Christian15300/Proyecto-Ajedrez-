@@ -18,9 +18,7 @@ rojo = (220, 50, 50)
 
 
 def cargar_imagen_pieza(nombre):
-  
     try:
-    
         ruta = os.path.join("images", nombre)
         imagen = pygame.image.load(ruta)
         return pygame.transform.scale(imagen, (tamaño_celda, tamaño_celda))
@@ -35,15 +33,10 @@ piezas = {
     'reina_blanca': cargar_imagen_pieza('reina_blanca.png'),
     'reina_negra': cargar_imagen_pieza('reina_negra.png'),
     'torre_blanca': cargar_imagen_pieza('torre_blanco.png'),
-
     'torre_negra': cargar_imagen_pieza('torre_negra.png'),
-
     'alfil_blanco': cargar_imagen_pieza('alfil_blanco.png'),
-
     'alfil_negro': cargar_imagen_pieza('alfil_negro.png'),
-
     'caballo_blanco': cargar_imagen_pieza('caballo_blanco.png'),
-
     'caballo_negro': cargar_imagen_pieza('caballo_negro.png'),
     'peon_blanco': cargar_imagen_pieza('peon_blanco.png'),
     'peon_negro': cargar_imagen_pieza('peon_negro.png'),
@@ -180,14 +173,12 @@ def casilla_atacada_en(board, color_revisado, col, fila):
 
 
 def puede_enrocar_en(board, color, lado):
-  
     fila = 0 if color == 'blanco' else 7
     rey_key = 'rey_blanco' if color == 'blanco' else 'rey_negro'
 
     if piezas_movidas.get(rey_key, True):
         return False
 
-   
     if color == 'blanco':
         torre_lado = 'torre_blanca2' if lado == 'corto' else 'torre_blanca'
         col_torre = 7 if lado == 'corto' else 0
@@ -195,19 +186,15 @@ def puede_enrocar_en(board, color, lado):
         torre_lado = 'torre_negra2' if lado == 'corto' else 'torre_negra'
         col_torre = 7 if lado == 'corto' else 0
 
-   
     pieza_torre = board.get(torre_lado)
     if pieza_torre is None:
-   
         pieza_en_casilla = obtener_pieza_en_posicion_board(board, col_torre, fila)
         if pieza_en_casilla is None or torre_lado not in board or color_de(pieza_en_casilla) != color:
             return False
     else:
-  
         if piezas_movidas.get(torre_lado, True):
             return False
 
-   
     if lado == 'corto':
         columnas_entre = [5, 6]
         columnas_king_path = [4, 5, 6]
@@ -219,11 +206,9 @@ def puede_enrocar_en(board, color, lado):
         if obtener_pieza_en_posicion_board(board, c, fila) is not None:
             return False
 
-   
     if esta_en_jaque_en(board, color):
         return False
 
-   
     for c in columnas_king_path:
         if casilla_atacada_en(board, color, c, fila):
             return False
@@ -243,42 +228,33 @@ def movimiento_por_patron(pieza, nueva_pos, board=None):
     if (nueva_col, nueva_fila) == (col, fila):
         return False
 
-   
     pieza_destino = obtener_pieza_en_posicion_board(board, nueva_col, nueva_fila)
     if pieza_destino and mismo_color(pieza, pieza_destino):
         return False
 
-  
     if 'rey' in pieza:
-  
         if dx <= 1 and dy <= 1:
             return True
-   
         if dy == 0 and dx == 2:
             color = color_de(pieza)
             lado = 'corto' if nueva_col > col else 'largo'
             return puede_enrocar_en(board, color, lado)
         return False
 
-  
     if 'caballo' in pieza:
         return (dx, dy) in [(1, 2), (2, 1)]
 
-   
     if 'alfil' in pieza:
         return dx == dy and camino_libre_board(board, col, fila, nueva_col, nueva_fila)
-
 
     if 'torre' in pieza:
         return (col == nueva_col or fila == nueva_fila) and camino_libre_board(board, col, fila, nueva_col, nueva_fila)
 
-   
     if 'reina' in pieza:
         recto = (col == nueva_col or fila == nueva_fila)
         diagonal = (dx == dy)
         return (recto or diagonal) and camino_libre_board(board, col, fila, nueva_col, nueva_fila)
 
-    
     if 'peon' in pieza:
         color = color_de(pieza)
         direccion = 1 if color == 'blanco' else -1
@@ -306,11 +282,9 @@ def movimiento_por_patron(pieza, nueva_pos, board=None):
 
 
 def movimiento_legal(pieza, nueva_pos):
-   
     if not movimiento_por_patron(pieza, nueva_pos, posiciones_piezas):
         return False
 
-  
     board = copia_tablero(posiciones_piezas)
     origen = board[pieza]
     destino_pieza = None
@@ -326,25 +300,19 @@ def movimiento_legal(pieza, nueva_pos):
         col_origen, fila_origen = origen
         col_dest, fila_dest = nueva_pos
         if abs(col_dest - col_origen) == 2 and fila_origen == fila_dest:
-    
             if col_dest > col_origen:
-   
                 torre_origen_col, torre_dest_col = 7, 5
             else:
-    
                 torre_origen_col, torre_dest_col = 0, 3
-   
             torre_a_mover = obtener_pieza_en_posicion_board(board, torre_origen_col, fila_origen)
             if torre_a_mover:
                 board[torre_a_mover] = (torre_dest_col, fila_origen)
-
 
     if 'rey' in pieza:
         color = color_de(pieza)
         if esta_en_jaque_en(board, color):
             return False
 
-  
     color = color_de(pieza)
     return not esta_en_jaque_en(board, color)
 
@@ -375,41 +343,33 @@ def movimiento_valido(pieza, nueva_pos):
     if pieza_destino and mismo_color(pieza, pieza_destino):
         return False
 
-  
     if 'rey' in pieza:
-      
         if dx <= 1 and dy <= 1:
             return True
-      
         if dy == 0 and dx == 2:
             color = color_de(pieza)
             lado = 'corto' if nueva_col > col else 'largo'
             return puede_enrocar_en(posiciones_piezas, color, lado)
         return False
 
-   
     if 'caballo' in pieza:
         return (dx, dy) in [(1, 2), (2, 1)]
 
-    
     if 'alfil' in pieza:
         if dx == dy:
             return camino_libre(col, fila, nueva_col, nueva_fila)
         return False
 
-    
     if 'torre' in pieza:
         if (col == nueva_col) or (fila == nueva_fila):
             return camino_libre(col, fila, nueva_col, nueva_fila)
         return False
 
-    
     if 'reina' in pieza:
         if (dx == dy) or (col == nueva_col) or (fila == nueva_fila):
             return camino_libre(col, fila, nueva_col, nueva_fila)
         return False
 
-    
     if 'peon' in pieza:
         color = color_de(pieza)
         direccion = 1 if color == 'blanco' else -1
@@ -479,9 +439,11 @@ while True:
                         if 'torre' in pieza_seleccionada:
                             piezas_movidas[pieza_seleccionada] = True
 
+                       
                         if 'peon' in pieza_seleccionada:
                             colp, filap = posiciones_piezas[pieza_seleccionada]
                             es_blanco = (color_de(pieza_seleccionada) == 'blanco')
+                            # ¿Ha llegado a la última fila?
                             if (es_blanco and filap == 7) or (not es_blanco and filap == 0):
                                 seleccion = None
                                 mensaje = "Promoción: presiona Q=Reina, T=Torre, A=Alfil, C=Caballo"
@@ -499,32 +461,45 @@ while True:
                                                 esperando = False
                                     pygame.time.wait(50)
 
-                                nonlocal_counter = globals().get('contador_promocion', 0)
-                                globals()['contador_promocion'] = nonlocal_counter + 1
-                                suf_color = 'blanca' if es_blanco else 'negra'
 
-                                if seleccion == 'Q':
-                                    nombre = 'reina'
-                                    key_base = f'reina_{suf_color}'
-                                elif seleccion == 'T':
-                                    nombre = 'torre'
-                                    key_base = f'torre_{suf_color}'
-                                elif seleccion == 'A':
-                                    nombre = 'alfil'
-                                    key_base = f'alfil_{suf_color}'
-                                else:
-                                    nombre = 'caballo'
-                                    key_base = f'caballo_{suf_color}'
+                                contador_promocion += 1
 
-                                nueva_clave = f"{nombre}_{suf_color}_prom{globals()['contador_promocion']}"
-                                if piezas.get(key_base):
-                                    piezas[nueva_clave] = piezas[key_base]
+                                if es_blanco:
+                                    if seleccion == 'Q':
+                                        base_key = 'reina_blanca'
+                                        nombre = 'reina'
+                                    elif seleccion == 'T':
+                                        base_key = 'torre_blanca'
+                                        nombre = 'torre'
+                                    elif seleccion == 'A':
+                                        base_key = 'alfil_blanco'
+                                        nombre = 'alfil'
+                                    else:  
+                                        base_key = 'caballo_blanco'
+                                        nombre = 'caballo'
                                 else:
-                                    piezas[nueva_clave] = piezas[f'{nombre}{suf_color}'] if piezas.get(f'{nombre}{suf_color}') else list(piezas.values())[0]
+                                    if seleccion == 'Q':
+                                        base_key = 'reina_negra'
+                                        nombre = 'reina'
+                                    elif seleccion == 'T':
+                                        base_key = 'torre_negra'
+                                        nombre = 'torre'
+                                    elif seleccion == 'A':
+                                        base_key = 'alfil_negro'
+                                        nombre = 'alfil'
+                                    else:  
+                                        base_key = 'caballo_negro'
+                                        nombre = 'caballo'
+
+                                suf_color_txt = 'blanco' if es_blanco else 'negro'
+                                nueva_clave = f"{nombre}_{suf_color_txt}_prom{contador_promocion}"
+
+                                piezas[nueva_clave] = piezas[base_key]
 
                                 posiciones_piezas.pop(pieza_seleccionada, None)
                                 piezas.pop(pieza_seleccionada, None)
                                 posiciones_piezas[nueva_clave] = (colp, filap)
+                        
 
                         pieza_seleccionada = None
                         turno = 'negro' if turno == 'blanco' else 'blanco'
